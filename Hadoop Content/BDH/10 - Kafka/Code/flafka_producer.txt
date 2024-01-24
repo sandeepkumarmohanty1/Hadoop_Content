@@ -1,0 +1,16 @@
+FlafkaAgent.sources = Netcat 
+FlafkaAgent.channels = MemChannel 
+FlafkaAgent.sinks = kafka-sink-1 
+FlafkaAgent.sources.Netcat.type = netcat 
+FlafkaAgent.sources.Netcat.bind = localhost 
+FlafkaAgent.sources.Netcat.port = 56565 
+FlafkaAgent.channels.MemChannel.type = memory 
+FlafkaAgent.channels.MemChannel.capacity = 100
+FlafkaAgent.channels.MemChannel.transactionCapacity = 100 
+FlafkaAgent.sources.Netcat.channels = MemChannel 
+FlafkaAgent.sinks.kafka-sink-1.type = org.apache.flume.sink.kafka.KafkaSink
+FlafkaAgent.sinks.kafka-sink-1.topic = flafkatopic
+FlafkaAgent.sinks.kafka-sink-1.brokerList = broker-list localhost:9092
+FlafkaAgent.sinks.kafka-sink-1.requiredAcks = 1
+FlafkaAgent.sinks.kafka-sink-1.batchSize = 20
+FlafkaAgent.sinks.kafka-sink-1.channel = MemChannel

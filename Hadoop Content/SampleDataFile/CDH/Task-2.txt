@@ -1,0 +1,15 @@
+Task2: Pig
+1. load data for players from /user/sandeepm/CDHData/players.txt', it is having 6 columns.
+2. load data for master from /user/sandeepm/CDHData/masters.txt', it is having 6 columns.
+3. we need only column 1, 2, 3 from players and 4, 5, 6 from master.
+4. join the tables and and show data according to m.4,m.5,p.1,p.2 by merging two tables through column m.6 and p.3.
+5. store the result over /user/cloudera/task2' as comma seperated.
+
+player = load '/user/sandeepm/CDHData/T2Player.txt' using PigStorage(',');
+master = load '/user/sandeepm/CDHData/T2Master.txt' using PigStorage(',');
+filterPayer = foreach player generate $0,$1,$2;
+filterMaster = foreach master generate $3,$4,$5;
+joinData = join filterPayer by $2,filterMaster by $2;
+finalResult = foreach joinData generate filterMaster.$0,filterMaster.$1,filterPayer.$0,filterPayer.$1;
+Store finalResult into '/user/cloudera/task2' using PigStorage (',');
+

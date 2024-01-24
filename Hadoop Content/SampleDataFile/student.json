@@ -1,0 +1,7 @@
+{"_id":1,"StudentName":"Vijay","Section":"A","Marks":70.0,"Subject":["Hindi","English","Math"]}
+{"_id":2,"StudentName":"Gaurav","Section":"A","Marks":90.0,"Subject":["English"]}
+{"_id":3,"StudentName":"Sunil","Section":"B","Marks":70.0,"Subject":["Math"]}
+{"_id":4,"StudentName":"Preeti","Section":"C","Marks":80.0,"Subject":["Hindi","English"]}
+{"_id":5,"StudentName":"Anuj","Section":"C","Marks":50.0,"Subject":["English"]}
+{"_id":6,"StudentName":"Palka","Section":"D","Marks":40.0,"Subject":["Math"]}
+{"_id":7,"StudentName":"Soniya","Section":"D","Marks":20.0,"Subject":["English","Math"]}

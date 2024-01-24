@@ -1,0 +1,5 @@
+UP	UttarPradesh
+OD	Odisha
+MH	Maharashtra
+TN	TamilNadu
+WB	WestBengal

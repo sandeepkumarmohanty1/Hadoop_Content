@@ -1,0 +1,43 @@
+RDD Create	=>
+val a = sc.parallelize(List(2,1,2,4,5,3,7,6,9,8,9),4)
+val input = sc.textFile("/user/notroot/datasets/CricketScore.txt") 
+
+RDD Transformation =>
+a.map(x => x *x).collect()
+a.flatMap(x => x to 5).collect()
+a.distinct.collect() //works on Key Value RDD also
+a.filter(x => x%2 ==0).collect()
+a.sample(False,0.2).collect() 
+b.mapValues(x=> x +1).collect()
+b.flatMapValues(x=> x to 35).collect()
+x.union(y).collect()
+x.intersection(y).collect()
+x.subtract(y).collect()
+x.cartesian(y).collect()
+x.zip(y).collect() //zip
+a.reduceByKey((x,y)=>x+y).collect()
+a.foldByKey(2) ((x,y)=>x+y).collect() 
+a.aggregateByKey(0)((a,v)=>a+v,(p1,p2)=>p1+p2).collect()
+a.combineByKey( value=> (value, 1),  ((x, value)=> (x._1 + value, x._2 + 1)),  ((x, y)=> (x._1 + y._1, x._2 + y._2)))
+
+
+RDD Actions	=>
+a.collect()
+a.take(2) 
+a.top(3)
+a.count() 
+a.countByKey()
+a.countByValue() 
+b.first() 
+a.saveAsTextFile(path)
+b.aggregate(1, 1)((x, y)=> (x._1 + y, x._2 + 1), ( x, y)=> (x._1 + y._1, x._2 + y._2)) 
+
+Dataframe:
+val df = spark.read.format("csv").option("header","true").load("datasets/player.csv")
+df.show()
+val df = spark.read.json("datasets/website.json") 
+df = spark.read.text("/resources/textFile.txt") 
+df = spark.read.parquet("/resources/testJson.parquet")
+df = spark.read.orc("/resources/testorc")
+df.coalesce(1).write.option("header","true").csv("DFOutput/csvDemo") 
+df.coalesce(1).write.json("DFOutput/jsonDemo")

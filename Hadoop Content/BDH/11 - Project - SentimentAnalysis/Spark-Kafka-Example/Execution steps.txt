@@ -1,0 +1,12 @@
+In one window 
+
+ncat -l -p 7777
+
+Another window
+
+spark-submit '/home/notroot/code/SparkStreamCode/spark1.py' localhost 7777
+
+
+
+
+

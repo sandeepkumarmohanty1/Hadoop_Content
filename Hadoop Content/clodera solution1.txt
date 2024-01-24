@@ -1,0 +1,73 @@
+1. Load data from df location '/user/cloudera/filghts' it is having two files as flight1 and flight2 as comma seperated.
+2. take only column 16 and 17 out of it. 16 is delay time and 17 is flight code.
+3. Take average of delay.
+4. display out as filght code and delay average.
+5. store result into hdfs path '/user/cloudera/task1' but delimited need to be tab.
+
+A = load '/user/cloudera/filghts/*flight*' using PigStorage(',');
+A1 = foreach A generate $16,$15;
+A2 = group A1 by $0;
+A3 = foreach A2 generate group,AVG($A1.$1);
+Store A3 into '/user/cloudera/task1' using PigStorage ('\t');
+
+ Task2: Pig
+1. load data for players from /user/cloudera/players.txt' it is having 16 columns.
+2. load data for master from /user/cloudera/masters.txt' it is having 14 columns.
+3. we need only column 1, 2, 3 from players and 4, 5, 6 from master.
+4. join the tables and and show data according to m.4,m.5,p.1,p.2 by merging two tables through column m.6 and p.3.
+5. store the result over /user/cloudera/task2' as comma seperated.
+
+A = load '/user/cloudera/players.txt' using PigStorage(',');
+B = load '/user/cloudera/masters.txt' using PigStorage(',');
+A1 = foreach A generate $0,$1,$2;
+B1 = foreach B generate $3,$4,$5;
+C = join A1 by $2,B1 by $2;
+D = foreach C generate B1.$0,B1.$1,A1.$0,A1.$1;
+Store D into '/user/cloudera/task2' using PigStorage (',');
+
+task3: hive
+1. An empty table named blazzers is present. file is present over local system over location /home/cloudera/blazzers.txt, it is comma seperated.
+2. now create new table blazzers_orc which is having 5 columns as depth, length, width, hight, speed from blazzers and store as orc format.
+3. load data from blazzers to blazzers_orc.
+
+Load data local INPATH '/home/cloudera/blazzers.txt' into blazzers;
+Create table blazzers_orc (depth int, length int, width int, hight int, speed int) row format delimited fields terminated by ',' stored as orc;
+insert into blazzers_orc select depth, length, width, hight, speed from blazzers
+
+task4: hive
+1. a table named airplanes is available with data.
+2. create a new table as airplanes_partitioned where partition will be according to engine_type with value as 'Turbo-Jet'
+3. insert data from airplanes to airplanes_partition with columns as flight, duration, country, speed and engine-type.
+
+create table airplanes_partitioned partitioned by (engine_type string) like airplanes;
+insert into airplanes_partitioned partition(engine_type = 'Turbo-Jet') select flight, duration, country, speed , engine-type from airplanes where engine-type = 'Turbo-Jet';
+
+task5: pig
+1. a hive table named exchanger is present. load in pig.
+2. we need only column name and address.
+3. store pig data into table name exchanger_sub in hive.
+
+pig -useHCatalog
+A = load 'exchanger' using org.apache.hive.hcatalog.pig.HCatLoader;
+A1 = for each A generate A.name,A.address;
+store A1 into 'exchanger_sub' using org.apache.hive.hcatalog.pig.HCatStorer;
+
+task6: sqoop
+create a sqoop command to import sql table presnt at host: namenode and port: 3360. use 10 mappers, split by eventdate, from db cloderadb and table hadoop username is cloudera and password is cloudera data must import for row where id is greater than equal to 10 output file must be comma seperated and endline must be present for lines. script can be run for multiple time but must not append the data. store result over location /user/cloudera/task
+
+sqoop import --connect jdbc:mysql://namenode:3360/cloderadb --username cloudera --password cloudera --table hadoop  --split-by eventdate --where "id >= 10" --m 10  --warehouse-dir '/user/cloudera/task'
+
+sqoop import --connect jdbc:mysql://namenode:3360/cloudera --username cloudera --password cloudera --table hadoop  --split-by eventdate --where "id >= 10" --m 10  --delete-target-dir --target-dir  '/user/cloudera/task'
+
+
+
+
+
+//Hive partition
+
+set hive.exec.dynamic.partition=true; 
+(To enable dynamic partitions, by default it is false)
+set hive.exec.dynamic.partition.mode=nonstrict; 
+(To  allow a table to be partitioned based on multiple columns in hive, in such case we have to enable the nonstrict mode)
+set hive.exec.max.dynamic.partitions.pernode=300; 
+(The default value is 100, we have to modify the same according to the possible no of partitions that would come in your case)

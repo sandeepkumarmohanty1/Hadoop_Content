@@ -1,0 +1,115 @@
+create table transactions(id varchar(20),chain varchar(20),dept varchar(20),category varchar(20),company varchar(20), brand varchar(20),date1 varchar(10),productsize int, productmeasure varchar(10), purchasequantity int,purcaseamount float);
+
+Load data local INFILE '/home/sandeepm/SampleDataFile/transactions_practice.csv' into table transactions fields terminated by ',' enclosed by '"' lines terminated by '\r\n';
+
+sqoop import --driver com.mysql.jdbc.Driver --connect jdbc:mysql://localhost:3306/retail_db --username root --password cloudera --table transactions -m 1 --delete-target-dir --target-dir TransactionsData
+
+sqoop import -Dmapreduce.map.memory.mb=1024 -Dmapreduce.map.java.opts=-Xmx7200m --driver com.mysql.jdbc.Driver --connect jdbc:mysql://localhost:3306/retail_db --username root --password cloudera --table transactions -m 1 --delete-target-dir --target-dir TransactionsData --fetch-size 10 --split-by id
+
+PIG
+transactions = LOAD 'TransactionsData/part-m-00000' USING PigStorage(',') as (id:chararray,chain:chararray,dept:chararray,category:chararray,company:chararray,brand:chararray,date:chararray, productsize:float, productmeasure:chararray, purchasequantity:int, purchaseamount:float);
+
+top 10 customers
+custGroup = GROUP transactions BY id; --grouping
+custSpendings = FOREACH custGroup GENERATE group, SUM(transactions.purchaseamount) as spendings; --sum operation
+custSpendingsSort = ORDER custSpendings BY spendings desc;
+top10Cust = LIMIT custSpendingsSort 10;
+DUMP top10Cust;
+STORE top10Cust INTO 'top10Cust' 
+
+chain wise sale
+chainGroup = GROUP transactions BY chain;
+chainSales = FOREACH chainGroup GENERATE group, SUM(transactions.purchasequantity) as totalQuantity, SUM(transactions.purchaseamount) as totalSales;
+dump chainSales;
+STORE chainSales INTO 'chainSales';
+
+Each chain, top 10 customers
+chainGroupCust = GROUP transactions BY (chain,id);
+chainGroupCustSpedings1 = FOREACH chainGroupCust GENERATE group, SUM(transactions.purchaseamount) as spendings;
+chainGroupCustSpendings2= FOREACH chainGroupCustSpedings1 generate group.chain as chain,group.id as id, spendings;
+chainGroupCustSpendings3= GROUP chainGroupCustSpendings2 BY chain;
+chainTop10Cust = FOREACH chainGroupCustSpendings3{chainGroupCustSpedingsSort = ORDER chainGroupCustSpendings2 BY spendings DESC;top10Cust = LIMIT chainGroupCustSpedingsSort 10; GENERATE top10Cust;}
+chainTop10Cust = FOREACH chainTop10Cust GENERATE FLATTEN(top10Cust);
+STORE chainTop10Cust INTO 'chainTop10Cust'
+
+Each customer most bought brand
+CustBrandGroup = GROUP transactions BY (id,brand);
+CustBrandQuantity = FOREACH CustBrandGroup GENERATE group, SUM(transactions.purchasequantity) as sales;
+CustBrandQuantity = FOREACH CustBrandQuantity GENERATE group.brand as brand, group.id as id,  sales;
+CustBrandQuantityGroup = GROUP CustBrandQuantity BY brand;
+custTop5Brands = FOREACH CustBrandQuantityGroup{CustBrandQuantityGroupSort = ORDER CustBrandQuantity BY sales DESC; top5Brand = LIMIT CustBrandQuantityGroupSort 5; GENERATE top5Brand;}
+custTop5Brands = FOREACH custTop5Brands GENERATE FLATTEN(top5Brand);
+STORE custTop5Brands INTO 'custTopFiveBrands';
+
+Top 10 brands
+brandGroup = GROUP transactions BY brand; 
+brandPurchase = FOREACH brandGroup GENERATE group, SUM(transactions.purchaseamount) as purchase; 
+brandPurchaseSort = ORDER brandPurchase BY purchase desc;
+top10Brands = LIMIT brandPurchaseSort 10;
+STORE top10Brands INTO 'top10Brands';
+
+top 10 companies
+companyGroup = GROUP transactions BY company;
+companyPurchase = FOREACH companyGroup GENERATE group, SUM(transactions.purchaseamount) as purchase; 
+companyPurchaseSort = ORDER companyPurchase BY purchase desc;
+top10Companies = LIMIT companyPurchaseSort 10;
+STORE top10Companies INTO 'top10Companies';
+
+Chain Year Monthly Sales
+chainYearMonSales = FOREACH transactions GENERATE chain,STRSPLIT(date,'/',3),purchaseamount as sales;
+chainYearMonSales = FOREACH chainYearMonSales GENERATE chain, $1.$0 as month, $1.$2 as year, sales;
+chainYearMonSalesGroup = GROUP chainYearMonSales by (chain,year,month);
+chainYearMonGroupSales = FOREACH chainYearMonSalesGroup GENERATE group, SUM(chainYearMonSales.sales) as totalsales;
+chainYearMonGroupSales = FOREACH chainYearMonGroupSales GENERATE group.chain as chain, group.year as year, group.month as month, totalsales;
+STORE chainYearMonGroupSales INTO 'chainYearMonGroupSales';
+
+HIVE
+sqoop data from mysql to hive
+ 
+sqoop import --driver com.mysql.jdbc.Driver --connect jdbc:mysql://localhost:3306/retail_db --username root --password cloudera --table transactions --hive-import --hive-table retail.transactions_staging -m 1 
+
+sqoop import -Dmapreduce.map.memory.mb=1024 -Dmapreduce.map.java.opts=-Xmx7200m --driver com.mysql.jdbc.Driver --connect jdbc:mysql://localhost:3306/retail_db --username root --password cloudera --table transactions --hive-import --hive-table retail.transactions_staging  -m 1  --fetch-size 10 --delete-target-dir --target-dir TransactionsData
+
+-- Partitioning and bucketing
+set hive.enforce.bucketing = true;
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+-- production table
+CREATE TABLE transactions_production(id string,dept string,category string,company string,brand string,date1 string,productsize int,productmeasure string,purchasequantity int,purchaseamount double) PARTITIONED BY (chain   string) CLUSTERED BY(id) INTO 5 BUCKETS ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+
+INSERT OVERWRITE TABLE transactions_production PARTITION (chain) 
+select id,dept, category, company,brand,date1,productsize,productmeasure,
+purchasequantity,purchaseamount,chain from transactions_staging;
+
+Top 10 Customers
+select id, sum(purchaseamount) as custSpendings from transactions_production
+group by id
+sort by custSpendings DESC
+limit 10;
+
+Chain wise sales
+select chain, sum(purchaseamount), sum(purchasequantity) from transactions_production
+group by chain;
+
+-- top 10 brands
+select brand, sum(purchaseamount) as custSpendings from transactions_production
+group by brand
+sort by custSpendings DESC
+limit 10;
+
+-- top 10 companies
+select company, sum(purchaseamount) as custSpendings from transactions_production
+group by company
+sort by custSpendings DESC
+limit 10;
+
+-- Chain Year Monthly Sales
+select chain, split(date1,'/')[2] as year1, split(date1,'/')[0] as month1, 
+sum(purchaseamount) as totalsales from transactions_production
+group by chain,split(date1,'/')[0],split(date1,'/')[2];
+
+-- Example create table top10companies
+CREATE TABLE top10companies AS
+select company, sum(purchaseamount) as custSpendings from transactions_production
+group by company sort by custSpendings DESC

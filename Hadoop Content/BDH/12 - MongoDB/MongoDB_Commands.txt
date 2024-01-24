@@ -1,0 +1,78 @@
+Database	=>
+1. show dbs
+2. use mydb  
+3. db.dropDatabase()
+
+Collection	=>
+1. db.createCollection("book")
+2. show collections 
+3. db.book.insert({"name" : " Definitive Guide"}) 
+4. db.book.renameCollection("record")
+5. db.book.drop() 
+6. db.student.ensureIndex({"name":1,"section":1}) 
+7. db.student.insert({'name':'x'},{writeConcern: {w:'majority'}})
+
+
+Mongo Import/Export	=>
+1. mongoimport --port 40020 --db mydb --collection student --file datasets/studentdata.json --upsert
+2. mongoimport --port 40020 --type csv --headerline --db mydb --collection student_csv --file datasets/students.csv
+3. mongoimport --port 40020 --type csv --fieldFile datasets/schema.txt --db mydb --collection student4 --file datasets/student_noheader.csv //explicitly providing schema, no space should be given between fieldnames.
+4. mongoexport --db mydb --collection student --out datasets/student-out.json --type=json
+5. mongoexport --db mydb --collection student --out test/student-out.csv --type=csv --fields _id,name,marks //CSV type export mandates the --fields else give error
+
+CRUD	=>
+1. db.student.update({"countrycode":92},{$set:{"countrycode":95}}) 
+2. db.student.updateMany({"_id":{$gte:5}},{$unset:{"hobbies":""}}) //removes “hobbies" 
+3. db.student.remove({ gender: "M" }, 1) // if set to true or 1, then remove one document.
+4. db.student.find({section:"A"},{_id:0,name:1,mobileno:1}) 
+5. db.student.find({section:{$in:["A","B"]}},{_id:0,name:1,section:1})
+6. db.student.find({$and:[{gender:"M"},{$or:[{"marks.english":{$lt:80}},{section:"A"}]}]},{name:1,"marks.english":1})
+7. db.student.aggregate({$match:{"section":"A"}},{"$group":{"_id":"$section","Total":{"$sum":"$marks.english"},"Count":{"$sum":1},"Average":{"$avg":"$marks.english"}}}) //Only for section A find count and average also.
+8. db.student.aggregate ({"$group":{"_id":"$section","TotalMarks":{ "$sum":"$marks.english"}, "Count":{"$sum":1},"Average":{"$avg":"$marks.english"}}},{"$project":{"section":"$_id","Total":"$TotalMarks","_id":0}},{"$sort":{"section":1}},{ "$skip" : 1}, {"$limit":2})
+9. db.City.aggregate({ $lookup: { from: "Country",  localField: "CountryID",  foreignField: "_id", as: "Country" } }, {$project:{_id:0,Name:1,"Country.Name":1}})
+
+MongoDB Map-Reduce	=>
+var map1 = function() {  emit(this.section, 1);  };
+var reduce1 = function(k,v) { return Array.sum(v);  }; // map reduce  
+db.student.mapReduce (map1,  reduce1, { out: "map_reduce_example" })    
+db.map_reduce_example.find()
+
+Replica	=>
+mongod --dbpath mongodbpath/path1 --shardsvr --port 30001 --replSet r1
+mongod --dbpath mongodbpath/path2 --shardsvr --port 30002 --replSet r1
+mongod --dbpath mongodbpath/path3 --port 30003 --replSet r1
+mongo --port 30001
+rs.initiate() 
+rs.add("ubuntu:30002") 
+rs.status()
+db.setSlaveOk()
+
+Sharding	=>
+mongod --configsvr --port 25001 --dbpath data/config1 --replSet con1 //config server
+mongod --configsvr --port 25002 --dbpath data/config2 --replSet con1
+mongod --configsvr --port 25003 --dbpath data/config3 --replSet con1
+mongo --port 25001
+rs.initiate()
+rs.add("ubuntu:25002")
+rs.add("ubuntu:25003")
+rs.status()
+
+Start few MongoS
+mongos --port 20001 --configdb con1/ubuntu:25001 //configdb is the config server replica
+mongos --port 20002 --configdb con1/ubuntu:25001
+
+Mongos Commands	=>
+mongo --port 20001
+sh.addShard('r1/ubuntu:30001')
+sh.addShard('r2/ubuntu:30004')
+sh.status() 
+sh.enableSharding('mydb')
+sh.shardCollection('mydb.student',{'mobileno':'hashed'}) 
+db.chunks.find()
+db.shards.find()
+db.mongos.find()
+
+Backup and Repair	=>
+Mongodump --host ubuntu --port 30001 --username <username> --password <password> --db test --collection student --out /db/data/backup --oplog 
+
+mongorestore --host ubuntu --port 30001 --username <username> --password <password> --drop --db newtest /db/data/backup/test/ --oplogReplay

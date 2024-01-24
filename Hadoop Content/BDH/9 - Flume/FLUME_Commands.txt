@@ -1,0 +1,10 @@
+Console Agent	=> flume-ng agent --conf-file /home/username/code/flumeprop/flume1.prop --name agent1 --conf $FLUME_HOME/conf -Dflume.root.logger=INFO,console
+
+Create File		=> echo "Hello Flume" > /tmp/spooldir/file1.txt
+
+HDFS Agent		=> flume-ng agent --conf-file code/flumeprop/spool-to-hdfs.prop --name agent1 --conf $FLUME_HOME/conf -Dflume.root.logger=INFO,console
+
+Netcat Agent	=> flume-ng agent --name NetcatAgent --conf $FLUME_HOME/conf/ --conf-file code/flumeprop/flume-netcat -Dflume.root.logger=INFO,console
+
+Netcat Commands	=> nc -l -p 56565 
+				   curl telnet://101.53.130.149:56565 

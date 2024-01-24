@@ -1,0 +1,12 @@
+Task1: Pig
+1. Load data from hdfs location '/user/cloudera/filghts' it is having two files as flight1 and flight2 as comma seperated.
+2. take only column 1 and 3 out of it. 3 is delay time and 1 is flight code.
+3. Take average of delay.
+4. display out as filght code and delay average.
+5. store result into hdfs path '/user/cloudera/task1' but delimited need to be tab.
+
+data = load '/user/cloudera/filghts/' using PigStorage(',');
+filterData = foreach data generate $0,$2;
+groupData = group filterData by $0;
+finalResult = foreach groupData generate group,AVG(filterData.$1);
+Store finalResult into '/user/cloudera/task1' using PigStorage ('\t');

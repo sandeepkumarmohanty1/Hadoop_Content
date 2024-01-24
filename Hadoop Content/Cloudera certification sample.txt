@@ -1,0 +1,36 @@
+Task1: Pig
+ 1. Load data from hdfs location '/user/cloudera/filghts' it is having two files as flight1 and flight2 as comma seperated.
+ 2. take only column 16 and 17 out of it. 16 is delay time and 17 is flight code.
+ 3. Take average of delay.
+ 4. display out as filght code and delay average.
+ 5. store result into hdfs path '/user/cloudera/task1' but delimited need to be tab.
+
+Task2: Pig
+1. load data for players from /user/cloudera/players.txt' it is having 16 columns.
+2. load data for master from /user/cloudera/masters.txt' it is having 14 columns.
+3. we need only column 1, 2, 3 from players and 4, 5, 6 from master.
+4. join the tables and and show data according to m.4,m.5,p.1,p.2 by merging two tables through column m.6 and p.3.
+5. store the result over /user/cloudera/task2' as comma seperated.
+
+task3: hive
+1. A empty table named blazzers is present. file is present over local system over location /home/cloudera/blazzers.txt, it is comma seperated.
+2. now create new table blazzers_orc which is having 5 columns as depth, length, width, hight, speed from blazzers and store as orc format.
+3. load data from blazzers to blazzers_orc.
+
+task4: hive
+1. a table named airplanes is available with data.
+2. create a new table as airplanes_partitioned where partition will be according to engine_type with value as 'Turbo-Jet'
+3. insert data from airplanes to airplanes_partition with columns as flight, duration, country, speed and engine-type.
+
+task5: pig
+1. a hive table named exchanger is present. load in pig.
+2. we need only column name and address.
+3. store pig data into table name exchanger_sub in hive.
+
+task6: sqoop
+create a sqoop command to import sql table presnt at host: namenode and port: 3360. use 10 mappers, split by eventdate, from db clouderaworks and table hadoop username is root and password is hadoop data must import for row where swin is greater than equal to 10 output file must be comma seperated and endline must be present for lines. script can be run for multiple time but must not append the data. store result over location /user/cloudera/task6
+
+task7: flume
+a conf file is present at /home/cloudera/solution/flume_check_conf.conf and a script named as namenode.sh is present use namenode.sh to generate input data for flume config file and store data at hdfs location /user/cloudera/task7.
+Set channel memory size to 500000.
+ 

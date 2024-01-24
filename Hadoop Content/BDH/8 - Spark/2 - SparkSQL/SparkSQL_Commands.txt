@@ -1,0 +1,32 @@
+Reading data from different file formats	=>
+dfcsv = spark.read.option("header","true").csv("datasets/students.csv")
+dfjson = spark.read.option("header","true").json("datasets/students.json")
+
+Save a dataframe in csv/json format
+dfcsv.coalesce(1).write.option("header","true").csv("Output/csvDemo") 
+dfjson.coalesce(1).write.json("Output/jsonDemo")
+
+DataFrame created using SQLContext	=>
+sqlContext = SQLContext(sc)
+sqlContext.createDataFrame(complexdata).show()
+sqlContext.createDataFrame(complexdata,["id","name","grade","Status","SomeList","SomeDictionary","AnotherRow","Date"]).show()
+
+DataFrame from RDD using SQLContext =>
+data = sc.parallelize([Row(1,"Alice",50),Row(2,"Bob",80),Row(3,"Charlie",40)])
+column_name = Row("id","name","marks")
+student = data.map(lambda r : column_name(*r))
+student.collect()
+student_df = sqlContext.createDataFrame(student)
+student_df.show()
+
+SQL	=> 
+data_tbl = data_df.createOrReplaceTempView("Student") #Create a table per session basis
+sparksession.sql("select * from Student").show()
+data_global_tbl = data_df.createOrReplaceGlobalTempView("Student_gl")
+sqlContext.sql("select * from global_temp.Student_gl").show()
+
+Explicit Schema	=>
+from pyspark.sql.types import StructType,StringType,StructField,LongType
+fields = [StructField('name',StringType(),True),StructField('Math',LongType(),True),StructField('Eng',LongType(),True),StructField('Sc',LongType(),True)]
+schema = StructType(fields)
+schema_students= spark.createDataFrame(parts,schema) 

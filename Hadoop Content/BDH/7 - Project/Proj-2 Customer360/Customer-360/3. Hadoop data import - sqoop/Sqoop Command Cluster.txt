@@ -1,0 +1,18 @@
+
+sqoop import --connect jdbc:mysql://localhost/customer360 --table savingsaccount --username root --password cloudera -m 1  --as-avrodatafile  --target-dir /user/cloudera/savingsaccount/
+
+sqoop import --connect jdbc:mysql://localhost/customer360 --table loanaccount --username root --password cloudera  -m 1  --as-avrodatafile  --target-dir /user/cloudera/loanaccount/
+
+sqoop import --connect jdbc:mysql://localhost/customer360 --table depositaccount --username root --password cloudera  -m 1  --as-avrodatafile  --target-dir /user/cloudera/depositaccount/
+
+sqoop import --connect jdbc:mysql://localhost/customer360 --table creditcardtrx --username root --password cloudera  -m 1  --as-avrodatafile  --target-dir /user/cloudera/creditcardtrx/
+
+sqoop import --connect jdbc:mysql://localhost/customer360 --table creditcard --username root --password cloudera  -m 1  --as-avrodatafile  --target-dir /user/cloudera/creditcard/
+
+sqoop import --connect jdbc:mysql://localhost/customer360 --table demographics --username root --password cloudera  -m 1  --as-avrodatafile  --target-dir /user/cloudera/demographics/
+
+
+
+ls *.avsc
+
+cat demographics.avsc

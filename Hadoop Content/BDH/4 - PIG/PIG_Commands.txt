@@ -1,0 +1,26 @@
+Load		=> cricData = load 'SampleDataFile/CricketScore.txt' using PigStorage('\t') as (pname:chararray,score:int,balls:int,six:int,four:int,minutes:int);
+Dump		=> DUMP cricData; 
+STORE		=> store cricData into 'output_pig/cricdata' using PigStorage(',');
+FOREACH		=> dispPlayer = foreach cricData generate (pname, score); 
+FILTER		=> A = FILTER cricData BY score >= 50;
+DISTINCT	=> A = DISTINCT (FOREACH cricData GENERATE $0); 
+SPLIT		=> SPLIT cricData INTO X IF $1 > 50, Y IF $1<= 50; 
+UNION		=> A = UNION X,Y; 
+SAMPLE		=> A = UNION X,Y; 
+ORDER		=> A = ORDER cricData BY $0, $1 DESC; 
+GROUP		=> A = GROUP cricData BY $0; 
+Aggregate	=> B = FOREACH (GROUP(FOREACH cricData GENERATE $0,$1) BY $0) GENERATE $0, MAX($1.$1);
+COGROUP		=> c = cogroup a by $0, b by $0;
+JOIN		=> c = JOIN a by $0, b by $0;
+LEFT JOIN	=> C = JOIN A by $0 LEFT OUTER, B BY $0;
+RIGHT JOIN 	=> C= JOIN A BY $0 RIGHT, B BY $0;
+FULL JOIN	=> C = JOIN A BY $0 FULL, B BY $0;
+AVG			=> avgScore = FOREACH groupData GENERATE group, AVG(cricData.score);
+MAX			=> maxScore = FOREACH groupData GENERATE group, MAX(cricData.score);
+MIN			=> minScore = FOREACH groupData GENERATE group, MIN(cricData.score);
+SUM			=> totalScore = FOREACH groupData GENERATE group, SUM(cricData.score);
+HCatLoader	=> records = LOAD ' cricdb.cricdata' USING org.
+apache.hive.hcatalog.pig.HCatLoader();
+HCatStorer	=> store records into 'cricdb.cricdata_pig' using org.apache.hive.hcatalog.pig.HCatStorer(); 
+register jar => register jar /Hadoop-1.0-SNAPSHOT.jar  
+

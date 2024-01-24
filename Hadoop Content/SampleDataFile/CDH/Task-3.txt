@@ -1,0 +1,20 @@
+task3: hive
+1. A empty table named students is present. file is present over local system over location /home/cloudera/students.txt, it is comma seperated. 
+2.Now create new table students_orc which is having 2 columns as name, marks from student and store as orc format.
+3.load data from student to students_orc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Load data local INPATH '/home/cloudera/students.txt' into students;
+Create table blazzers_orc (name string, marks int) row format delimited fields terminated by ',' stored as orc;
+insert into students_orc select name, marks from students;

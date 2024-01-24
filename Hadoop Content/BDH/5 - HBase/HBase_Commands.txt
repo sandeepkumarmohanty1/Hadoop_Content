@@ -1,0 +1,19 @@
+Create	=> create 'Retail', {NAME=>'CustInfo'}, {NAME=>'BrandsPurchased'}
+Put		=> put 'Retail', '1042', 'BrandsPurchased:brand2', 78
+SCAN	=> scan 'Retail'
+		   scan 'Retail',{STARTROW=>'1043'}
+		   scan 'Retail',{STOPROW=>'1043'}
+		   scan 'Retail', {STARTROW=> '1042', STOPROW=> '1044'}
+		   scan 'Retail',{COLUMNS=>'CustInfo:name',STARTROW=>'1042',STOPROW=>'1044'}
+
+GET		=> get 'Retail', '1045', COLUMN=>['BrandsPurchased:brand3', 'BrandsPurchased:brand2', 'BrandsPurchased:brand1']
+ALTER	=> alter 'Retail', {NAME => 'dept', VERSIONS => 5} //add column family with 5 cell VERSIONS
+DELETE	=> delete 'Retail', '1045','BrandsPurchased:brand3'
+TRUNCATE=> truncate 'Retail'
+DISABLE	=> disable 'Retail'
+DROP	=> drop 'Retail'
+ENABLE	=> enable 'Retail'
+META	=> scan 'hbase:meta'
+
+HIVE	=> create external table if not exists RetailCust(custid int, name string, age int) stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES("hbase.columns.mapping" = ":key, CustInfo:name, CustInfo:age") TBLPROPERTIES("hbase.table.name"="Retail");
+PIG		=> STORE b into 'hbase://cricdata_pig' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('cricinfo:score');

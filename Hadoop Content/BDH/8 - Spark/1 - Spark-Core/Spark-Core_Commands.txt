@@ -1,0 +1,40 @@
+RDD Create	=>
+input = sc.textFile("/home/notroot/datasets/CricketScore.txt")
+a = sc.parallelize([2,1,2,4,5,3,7,6,9,8,9],4)
+
+RDD Transformation	=> 
+a.map(lambda x: x *x).collect()
+a.flatMap(lambda x: range(x,5)).collect() 
+b.distinct().collect() #works on Key Value RDD also 
+a.filter(lambda x : x%2 ==0).collect()
+a.sample(False,0.2).collect()  
+b.mapValues(lambda x: x +1).collect()
+b.flatMapValues(lambda x: range(x, 30)).collect()
+a.union(b).collect()
+a.intersection(b).collect()
+b.sortByKey(True).collect()
+a.groupBy(lambda x : (x % 2 == 0)).mapValues(list).collect()
+x.cogroup(y).map(lambda x: (x[0], list(x[1][0]), list(x[1][1]))).collect()
+a.reduceByKey(add).collect()
+a.groupByKey().map(lambda x:(x[0],sum(list(x[1])))).collect()
+a.combineByKey(lambda value: (value, 1), lambda x, value: (x[0] + value, x[1] + 1), lambda x, y: (x[0] + y[0], x[1] + y[1]))
+
+Joins	=>
+a.join(b).collect()
+a.leftOuterJoin(b).collect()
+a.rightOuterJoin(b).collect()
+a.fullOuterJoin(b).collect() 
+a.subtractByKey(b).collect()
+
+Spark-Submit	=>
+spark-submit --master yarn --executor-memory 5G   --num-executors 10 totalscore.py 
+
+Action	=>
+a.take(5)
+a.top(5)
+a.count()
+a.countByValue()
+a.first()
+a.reduce(lambda a,b : a + b)
+a.fold(1,lambda a,b: a + b)
+a.aggregate((1, 1), (lambda x, y: (x[0] + y, x[1] + 1)), (lambda x, y: (x[0] + y[0], x[1] + y[1]))) 

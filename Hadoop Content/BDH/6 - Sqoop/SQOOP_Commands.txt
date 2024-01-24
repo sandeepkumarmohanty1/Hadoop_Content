@@ -1,0 +1,40 @@
+IMPORT	=> 
+1. Load sample data to a target HDFS directory
+
+sqoop import --driver com.mysql.jdbc.Driver --connect jdbc:mysql://101.53.130.146/sandeepm --table actor --delete-target-dir --target-dir 'sqoopdata' --username sandeepm -P 
+
+2. Load multiple table data to same base directory
+sqoop import --driver com.mysql.jdbc.Driver --connect jdbc:mysql://101.53.130.146/sandeepm --table city --delete-target-dir --warehouse-dir 'sqoopdata' --username sandeepm -P --password-file /user/cloudera/password.txt
+
+3. To load password from file
+sqoop import --connect jdbc:mysql://101.53.130.146/sandeepm --table actor --delete-target-dir --target-dir 'sqoopdata' --username sandeepm --password-file file:////home/sandeepm/pwd/password.txt
+sqoop import --connect jdbc:mysql://101.53.130.146/sandeepm --table actor --delete-target-dir --target-dir 'sqoopdata' --username sandeepm --password-file /user/sandeepm/pwd/password.txt
+4. To fetch specific columns with where condition and save output in tab separated than comma
+ sqoop import --driver com.mysql.jdbc.Driver --connect jdbc:mysql://101.53.130.146/sandeepm --username sandeepm -P --table film --delete-target-dir --warehouse-dir 'sqoopdata' --fields-terminated-by '\t' --columns 'title, rating'  --where " rental_rate >3.00"
+
+ 5. Storing data in other than text format
+
+ sqoop import --driver com.mysql.jdbc.Driver --connect jdbc:mysql://101.53.130.146/sandeepm --table city --delete-target-dir --warehouse-dir 'sqoopdata' --username sandeepm -P --as-sequencefile 
+
+ 6. Incremental Imports
+ sqoop import --connect jdbc:mysql://101.53.130.146/sandeepm --username sandeepm --password-file /user/sandeepm/pwd/password.txt --table actor  --target-dir 'sqoopdata/actor' --check-column actor_id --incremental append --last-value 200 -m 1
+
+ sqoop import --connect jdbc:mysql://localhost/retail_db --table orders --sqoop import --connect jdbc:mysql://101.53.130.146/sandeepm --username sandeepm --password-file /user/sandeepm/pwd/password.txt --table actor  --target-dir 'sqoopdata/actor' --incremental lastmodified --check-column  last_update --last-value "2006-02-15" --merge-key actor_id -m 1
+
+ 
+Jobs	=>
+ 
+1. Create a SQOOP JOB 
+sqoop job --create job1 -- import --connect jdbc:mysql://101.53.130.146/sandeepm --table actor --delete-target-dir --target-dir 'sqoopdata' --username sandeepm --password-file /user/sandeepm/pwd/password.txt
+Sqoop job for incremental load by Preserving the Last Imported Value By SQOOP
+2. Execute Sqoop Job
+sqoop job --exec job1 
+3. To see list of JOB
+sqoop job --list 
+4. To view content of the saved job
+sqoop job --show job1 
+5. To Delete JOB
+sqoop job --delete job1 
+
+EXPORT	=> 
+sqoop export --connect jdbc:mysql://101.53.130.146/sandeepm --table players --username sandeepm --password-file /user/sandeepm/pwd/password.txt --export-dir SampleDataFile/PlayerID_Name.csv

@@ -1,0 +1,25 @@
+SSC		=>
+1. ssc = StreamingContext(sc, 10) 
+2. ssc.start()
+3. ssc.checkpoint(checkpointDirectory) 
+4. ssc.awaitTermination()
+	
+DStream	=>
+lines = ssc.socketTextStream(sys.argv[1], int(sys.argv[2])) 
+
+Spark-Submit	=>
+spark-submit 'code/sparkstreamcode/spark1.py' localhost 7777
+
+Transformations	=>
+    word_counts = lines.flatMap(lambda line: line.split(" "))\
+                  .map(lambda word: (word, 1))\
+                  .updateStateByKey(countWords)
+
+	counts = lines.countByWindow(10, 4)
+	
+    counts = lines.flatMap(lambda line: line.split(" "))\
+                  .filter(lambda word:"ERROR" in word)\
+                  .map(lambda word: (word, 1))\
+                  .reduceByKeyAndWindow(lambda a, b: a + b, lambda a, b: a - b, 20, 2)    
+
+				  

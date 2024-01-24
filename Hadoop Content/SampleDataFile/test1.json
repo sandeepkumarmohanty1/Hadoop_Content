@@ -1,0 +1,6 @@
+{"_id":1.0,"Name":"Delhi","CountryID":1.0}
+{"_id":2.0,"Name":"Noida","CountryID":1.0}
+{"_id":3.0,"Name":"Chicago","CountryID":2.0}
+{"_id":4.0,"Name":"London","CountryID":3.0}
+{"_id":5.0,"Name":"Bristol","CountryID":3.0}
+{"_id":6.0,"Name":"Sydney","CountryID":4.0}

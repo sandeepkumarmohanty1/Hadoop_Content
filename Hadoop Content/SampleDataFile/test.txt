@@ -1,0 +1,6 @@
+agra,42,2001
+agra,45,2002
+aligarh,47,2001
+aligarh,37,2002
+pune,32,2003
+delhi,36,2003

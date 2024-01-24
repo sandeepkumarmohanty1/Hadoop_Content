@@ -1,0 +1,22 @@
+TwitterAgent.sources = Twitter
+TwitterAgent.channels = MemChannel
+TwitterAgent.sinks = HDFS
+TwitterAgent.sources.Twitter.type = com.cloudera.flume.source.TwitterSource
+TwitterAgent.sources.Twitter.channels = MemChannel
+TwitterAgent.sources.Twitter.consumerKey = lH1SxvBSDkSYQXUqtIiVfMAal
+TwitterAgent.sources.Twitter.consumerSecret = 4SOlHBdDsw6ifWjEDuDwhmhU8MIpDqVKQSSuKZpcJvCNuTfleF
+TwitterAgent.sources.Twitter.accessToken = 862519245787344896-8fM15oYy8TYriLZE2DeX0mpiKouoRdp
+TwitterAgent.sources.Twitter.accessTokenSecret = 9840wRxPPi3M86GlUyEai4td309TwH0rkMdyyTUajOFWB
+TwitterAgent.sources.Twitter.keywords = hadoop,bigdata,India,Cricket
+TwitterAgent.sinks.HDFS.channel = MemChannel
+TwitterAgent.sinks.HDFS.type = hdfs
+TwitterAgent.sinks.HDFS.hdfs.path = /user/sandeepm/test12345
+TwitterAgent.sinks.HDFS.hdfs.fileType = DataStream
+TwitterAgent.sinks.HDFS.hdfs.writeFormat = Text
+TwitterAgent.sinks.HDFS.hdfs.batchSize = 100
+TwitterAgent.sinks.HDFS.hdfs.rollSize = 0
+TwitterAgent.sinks.HDFS.hdfs.rollCount = 100
+TwitterAgent.channels.MemChannel.type = memory
+TwitterAgent.channels.MemChannel.capacity = 100
+TwitterAgent.channels.MemChannel.transactionCapacity = 100
+

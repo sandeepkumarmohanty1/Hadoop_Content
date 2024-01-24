@@ -1,0 +1,25 @@
+Start Zookeeper	=> zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties 
+Start Broker	=> kafka-server-start.sh $KAFKA_HOME/config/server.properties
+
+Topics			=>
+kafka-topics.sh --create --zookeeper localhost:5181 --partitions 1 --replication-factor 1 --topic mytopic 
+kafka-topics.sh --zookeeper localhost:5181 -list
+kafka-topics.sh --describe --topic mytopic --zookeeper localhost:5181
+kafka-topics.sh --delete --zookeeper localhost:5181 --topic mytopic
+
+Consumer		=>
+kafka-console-consumer.sh --zookeeper localhost:5181 --topic mytopic2 --from-beginning
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic mytopic --from-beginning
+
+Producer		=>
+kafka-console-producer.sh --broker-list localhost:9092 --topic mytopic
+
+FLAFKA			=>
+1. Create a topic in KAFKA
+	kafka-topics.sh --create --zookeeper localhost:5181 --partitions 1 --replication-factor 1 --topic flafkatopic
+	
+2. Run Flume agent to read data from netcat which will be a producer to Kafka topics
+	flume-ng agent --name FlafkaAgent --conf $FLUME_HOME/conf/ --conf-file code/flumeprop/flafka_producer -Dflume.root.logger=INFO,console
+3. Run another Flume agent to read data from Kafka topics 
+	flume-ng agent --name flume1 --conf $FLUME_HOME/conf/ --conf-file code/flumeprop/flafka_consumer -Dflume.root.logger=INFO,console
+

@@ -1,0 +1,32 @@
+1)Verify kafka is running
+
+kafka-topics --zookeeper e2e-27-143.e2enetworks.net.in:2181,e2e-27-144.e2enetworks.net.in:2181,e2e-27-153.e2enetworks.net.in:2181 --list
+
+2)Create a topic named twitterstream in kafka: 
+
+kafka-topics --create --zookeeper e2e-27-143.e2enetworks.net.in:2181,e2e-27-144.e2enetworks.net.in:2181,e2e-27-153.e2enetworks.net.in:2181 --partitions 1 --replication-factor 1 --topic twitterstream 
+
+3)Verify topic is created as expected
+
+kafka-topics --describe --topic twitterstream --zookeeper e2e-27-143.e2enetworks.net.in:2181,e2e-27-144.e2enetworks.net.in:2181,e2e-27-153.e2enetworks.net.in:2181
+
+4)Start the Flume agent to read data from Twitter:
+
+flume-ng  agent -C jar/flume-sources-1.0-SNAPSHOT.jar --conf $FLUME_HOME/conf --conf-file /home/sandeepm/flumeprop/flume-twitter-kafka.conf --name TwitterAgent -Dflume.root.logger=DEBUG,console
+
+
+5)To check if the data is landing in Kafka, create a consumer
+
+kafka-console-consumer --zookeeper e2e-27-143.e2enetworks.net.in:2181,e2e-27-144.e2enetworks.net.in:2181,e2e-27-153.e2enetworks.net.in:2181 --topic twitterstream --from-beginning
+
+
+6)Running the Stream Analysis Program: 
+
+spark-submit code/SparkStreamCode/twitter-analysis/twitterStream.py
+
+***********************************************************************************************
+Verify the output as it shows below
+the total number of positive comments and negative comments
+Total number of #TAGs in comment
+Total number of comments per batch
+***********************************************************************************************
